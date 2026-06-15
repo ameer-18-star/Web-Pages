@@ -1,0 +1,28 @@
+[
+  {
+    "topic": "Your Topic Here",
+    "question": "Your question here with optional <b>bold</b> and <i>italic</i> formatting",
+    "answer": "Your answer here with optional <b>bold</b> and <i>italic</i> formatting"
+  },
+  {
+    "topic": "Your Topic Here",
+    "question": "Second question?",
+    "answer": "Second answer"
+  },
+  {
+    "topic": "Another Topic",
+    "question": "Third question?",
+    "answer": "Third answer"
+  },
+  {
+    "topic": "Another Topic",
+    "question": "Fourth question with <b>formatting</b>?",
+    "answer": "Fourth answer with <i>formatting</i>"
+  },
+  {
+    "topic": "Topic with Image",
+    "question": "Question with visual aid?",
+    "answer": "Answer to the question",
+    "image": "https://example.com/your-image-url.png"
+  }
+]

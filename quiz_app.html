@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .quiz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .timer-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+        }
+
+        .question-counter {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-color: #28a745;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .explanation-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+            border-left: 4px solid #667eea;
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .explanation-text {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .score-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .results-section {
+            text-align: center;
+            display: none;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .results-breakdown {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .wrong-answers-section {
+            background: #fff3cd;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+            border-left: 4px solid #ffc107;
+        }
+
+        .wrong-answers-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .wrong-answer-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ffeeba;
+        }
+
+        .wrong-question-number {
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 5px;
+        }
+
+        .wrong-question-text {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .wrong-answer-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .setting-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .quiz-title {
+                font-size: 2rem;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+            
+            .timer-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1 class="quiz-title">IT Networking Quiz</h1>
+            <p class="quiz-subtitle">Test your computer networking knowledge!</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="start-screen">
+            <div class="settings-section">
+                <div class="settings-title">Quiz Settings</div>
+                <div class="setting-item">
+                    <span>Time per question (seconds):</span>
+                    <input type="number" id="time-setting" class="setting-input" value="30" min="10" max="120">
+                </div>
+            </div>
+            <p class="start-description">
+                Welcome to our IT Networking quiz! You'll be presented with 20 multiple-choice questions 
+                covering computer networking fundamentals from the TCP/IP model layers to protocols and devices. 
+                Each question has a time limit, and you'll get detailed explanations after each answer.
+                Questions not answered in time will be marked as incorrect.
+            </p>
+            <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" style="display: none;">
+            <div class="timer-section">
+                <div class="score-display">
+                    Score: <span id="current-score">0</span>
+                </div>
+                <div class="timer" id="timer">30s</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+
+            <div class="question-section">
+                <div class="question-counter">
+                    Question <span id="current-question">1</span> of <span id="total-questions">20</span>
+                </div>
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                
+                <div id="explanation-section" class="explanation-section">
+                    <div class="explanation-title">Explanation:</div>
+                    <div class="explanation-text" id="explanation-text"></div>
+                </div>
+            </div>
+
+            <div class="quiz-controls">
+                <div></div>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="results-section">
+            <div class="final-score" id="final-score"></div>
+            <div class="score-message" id="score-message"></div>
+            
+            <div class="results-breakdown">
+                <div class="result-row">
+                    <span>Total Questions:</span>
+                    <span id="total-q">20</span>
+                </div>
+                <div class="result-row">
+                    <span>Correct Answers:</span>
+                    <span id="correct-answers">0</span>
+                </div>
+                <div class="result-row">
+                    <span>Wrong Answers:</span>
+                    <span id="wrong-answers">0</span>
+                </div>
+                <div class="result-row">
+                    <span>Timed Out:</span>
+                    <span id="timed-out">0</span>
+                </div>
+                <div class="result-row">
+                    <span>Accuracy:</span>
+                    <span id="accuracy">0%</span>
+                </div>
+            </div>
+
+            <div id="wrong-answers-details" class="wrong-answers-section" style="display: none;">
+                <div class="wrong-answers-title">Questions You Got Wrong</div>
+                <div id="wrong-answers-list"></div>
+            </div>
+
+            <div>
+                <button class="btn btn-primary" onclick="restartQuiz()">Take Quiz Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IT Networking Quiz Questions
+        const quizData = [
+            {
+                question: "According to Victor Escobedo, what initially sparked his passion for IT?",
+                options: ["His mechanical engineer father teaching him CAD work", "Building his first computer from scratch", "Installing computer games and tinkering with the computer's internals", "Attending technical classes offered by his school"],
+                correct: 2,
+                explanation: "Victor Escobedo states that his passion for IT began when he realized he could install new software, including computer games, and started tinkering with the computer, even opening its case to look inside."
+            },
+            {
+                question: "What is the defined set of standards that computers must follow to communicate properly called?",
+                options: ["An algorithm", "A protocol", "A framework", "A directive"],
+                correct: 1,
+                explanation: "The text defines a 'protocol' as a defined set of standards that computers must follow in order to communicate properly."
+            },
+            {
+                question: "Which of the following best describes the scope of 'computer networking' according to the course material?",
+                options: ["Only ensuring that computers speak the same language", "The full scope of how computers communicate with each other, including ensuring they can hear each other, speak understandable protocols, and repeat undelivered messages", "Primarily managing deployments of large internal IT projects for a company", "The process of troubleshooting network issues using powerful tools"],
+                correct: 1,
+                explanation: "Computer networking is described as the 'full scope of how computers communicate with each other,' encompassing ensuring they can hear each other, speak understandable protocols, and repeat messages not fully delivered."
+            },
+            {
+                question: "Why is understanding computer networking considered critical for an IT support specialist, according to Victor Escobedo?",
+                options: ["It allows them to develop new applications for company use", "It enables them to manage budgets for IT projects", "It's essential for fixing communication problems between computers and understanding the impact of changes on corporate infrastructure", "It helps them identify the best college programs for aspiring tech professionals"],
+                correct: 2,
+                explanation: "Victor states that networking skills are critical for his role as a corporate operations engineer because he needs to understand the impact of changes on corporate infrastructure and how applications interact across systems."
+            },
+            {
+                question: "Which two primary network models are mentioned in the course as descriptions of different layers at play in computer networking?",
+                options: ["TCP/IP five-layer model and UDP/IP seven-layer model", "OSI Model (seven layers) and TCP/IP five-layer model", "HTTP/FTP six-layer model and DNS/DHCP five-layer model", "Ethernet three-layer model and Internet Protocol two-layer model"],
+                correct: 1,
+                explanation: "The course mentions selecting the 'TCP/IP five-layer model' and also touching on 'the other primary network model, the OSI Model, which has seven layers'."
+            },
+            {
+                question: "In the layered models of computer networking, what is the relationship between protocols at different layers?",
+                options: ["Protocols at lower layers operate independently without affecting higher layers", "Protocols at each layer carry the ones above them to facilitate data movement", "Only the application layer protocols are required for data transfer", "Protocols at higher layers define the physical attributes of the network"],
+                correct: 1,
+                explanation: "The course states, 'The protocols at each layer carry the ones above them in order to get data from one place to the next'."
+            },
+            {
+                question: "What is the smallest representation of data that a computer can understand, according to the physical layer discussion?",
+                options: ["A byte", "A packet", "A bit", "A frame"],
+                correct: 2,
+                explanation: "The physical layer section states, 'A bit is the smallest representation of data that a computer can understand. It's a one or a zero'."
+            },
+            {
+                question: "How do copper cables transmit binary data across the wires?",
+                options: ["By sending pulses of light", "By changing the voltage between two ranges", "By varying the frequency of electromagnetic waves", "By using sound vibrations"],
+                correct: 1,
+                explanation: "The text explains that the sending device communicates binary data across copper wires by 'changing the voltage between two ranges'."
+            },
+            {
+                question: "What is 'crosstalk' in the context of network cables?",
+                options: ["When data signals get corrupted due to excessive heat", "When an electrical pulse on one wire is accidentally detected on another wire, causing a network error", "The process of converting digital signals to analog signals", "Interference caused by wireless signals on wired connections"],
+                correct: 1,
+                explanation: "Crosstalk is defined as 'when an electrical pulse on one wire is accidentally detected on another wire,' leading to the receiving end being unable to understand data and causing a network error."
+            },
+            {
+                question: "What is the primary purpose of the Data Link Layer in a network stack?",
+                options: ["To manage application-specific protocols like web browsing", "To route data between different independent networks", "To abstract away the need for higher layers to care about the physical layer hardware", "To ensure reliable delivery of data between client and server programs"],
+                correct: 2,
+                explanation: "The Data Link layer's 'primary purposes of this layer is to essentially abstract away the need for any other layers to care about the physical layer and what hardware is in use'."
+            },
+            {
+                question: "What does CSMA/CD stand for, and what is its purpose in Ethernet?",
+                options: ["Carrier System Multiple Access / Collision Detection; to prioritize data packets", "Collision Sense Multiple Access / Carrier Detection; to manage wireless signal strength", "Carrier Sense Multiple Access with Collision Detection; to determine when communication channels are clear and manage simultaneous transmissions", "Centralized Server Management / Client Distribution; to control client access to servers"],
+                correct: 2,
+                explanation: "CSMA/CD stands for Carrier Sense Multiple Access with Collision Detection and is used to 'determine when the communications channels are clear and when the device is free to transmit data'."
+            },
+            {
+                question: "What is a MAC address, and how is it structured?",
+                options: ["A 32-bit logical address for network identification, assigned by a router", "A 48-bit globally unique identifier attached to a network interface, represented by six groupings of two hexadecimal numbers", "A 64-bit address used for Internet routing, assigned dynamically", "A 128-bit address for cloud resource identification"],
+                correct: 1,
+                explanation: "A MAC address is described as a 'globally unique identifier attached to an individual network interface' that is a '48-bit number normally represented by six groupings of two hexadecimal numbers'."
+            },
+            {
+                question: "What is the primary function of the Network Layer in the TCP/IP five-layer model?",
+                options: ["To define cabling and connectors", "To allow different networks to communicate with each other through routers", "To sort data to the correct client and server programs", "To ensure data integrity on a single link"],
+                correct: 1,
+                explanation: "The Network layer 'allows different networks to communicate with each other through devices known as routers'."
+            },
+            {
+                question: "What is the most common protocol used at the Network Layer, described as 'the heart of the Internet'?",
+                options: ["Ethernet", "TCP", "IP", "UDP"],
+                correct: 2,
+                explanation: "'The most common protocol used at this layer is known as IP or Internet Protocol. IP is the heart of the Internet and most small networks around the world'."
+            },
+            {
+                question: "What is the main responsibility of the Transport Layer?",
+                options: ["Delivering data between two individual nodes", "Defining a common way of interpreting signals", "Sorting out which client and server programs are supposed to get the data", "Specifying cabling and connectors"],
+                correct: 2,
+                explanation: "The Transport layer 'sorts out which client and server programs are supposed to get that data'."
+            },
+            {
+                question: "What is the key difference between TCP (Transmission Control Protocol) and UDP (User Datagram Protocol) at the Transport Layer?",
+                options: ["TCP provides mechanisms for reliable data delivery, while UDP does not", "UDP is faster and more reliable than TCP", "TCP is used for real-time applications, while UDP is for file transfers", "UDP is primarily for wireless networks, while TCP is for wired networks"],
+                correct: 0,
+                explanation: "The 'big difference between the two is that TCP provides mechanisms to ensure that data is reliably delivered while UDP does not'."
+            },
+            {
+                question: "What type of protocols are found at the Application Layer?",
+                options: ["General-purpose data transfer protocols", "Device-specific hardware protocols", "Application-specific protocols", "Network routing protocols"],
+                correct: 2,
+                explanation: "The text states, 'There are lots of different protocols at this layer, and as you might have guessed from the name, they are application-specific'."
+            },
+            {
+                question: "What is the simplest way to think of a 'server' in networking terms?",
+                options: ["A powerful computer with many network ports", "A device that requests data from another device", "Something that provides data to something requesting that data", "A physical location where network cables are terminated"],
+                correct: 2,
+                explanation: "The text states, 'The simplest way to think of a server is as something that provides data to something requesting that data'."
+            },
+            {
+                question: "What is 'modulation' in the context of the physical layer?",
+                options: ["A method for encrypting data before transmission", "A way of varying the voltage of an electrical charge moving across a cable to represent ones and zeros", "The process of converting digital signals to analog signals", "A technique to combine multiple data streams into one"],
+                correct: 1,
+                explanation: "Modulation is described as 'a way of varying the voltage of this charge moving across the cable' which, when used for computer networks, is known as 'line coding' and allows devices to understand electrical states as ones and zeros."
+            },
+            {
+                question: "What is the concept that information can flow in both directions across a cable simultaneously called?",
+                options: ["Simplex communication", "Half-duplex communication", "Full duplex communication", "Unidirectional communication"],
+                correct: 2,
+                explanation: "The text defines duplex communication as information flowing in both directions, and 'full duplex' is when devices 'can both communicate with each other at the exact same time'."
+            }
+        ];
+
+        // Quiz state variables
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizCompleted = false;
+        let timePerQuestion = 30;
+        let timeRemaining = 30;
+        let timer = null;
+        let isAnswered = false;
+        let wrongAnswers = [];
+        let timedOutQuestions = 0;
+
+        // Initialize quiz
+        function startQuiz() {
+            timePerQuestion = parseInt(document.getElementById('time-setting').value);
+            timeRemaining = timePerQuestion;
+            
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            document.getElementById('quiz-screen').classList.add('fade-in');
+            
+            currentQuestion = 0;
+            score = 0;
+            wrongAnswers = [];
+            timedOutQuestions = 0;
+            loadQuestion();
+        }
+
+        // Load current question
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            isAnswered = false;
+            selectedOption = null;
+            
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('question-text').textContent = question.question;
+            
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            // Load options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index, optionElement);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Hide explanation and next button
+            document.getElementById('explanation-section').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            // Update score display
+            document.getElementById('current-score').textContent = score;
+            
+            // Start timer
+            startTimer();
+        }
+
+        // Start question timer
+        function startTimer() {
+            timeRemaining = timePerQuestion;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 10) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    if (!isAnswered) {
+                        handleTimeOut();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = timeRemaining + 's';
+            
+            if (timeRemaining > 10) {
+                document.getElementById('timer').classList.remove('warning');
+            }
+        }
+
+        // Handle timeout
+        function handleTimeOut() {
+            isAnswered = true;
+            timedOutQuestions++;
+            
+            const question = quizData[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            // Disable all options
+            options.forEach(opt => opt.classList.add('disabled'));
+            
+            // Show correct answer
+            options[question.correct].classList.add('correct');
+            
+            // Record wrong answer
+            wrongAnswers.push({
+                questionNumber: currentQuestion + 1,
+                question: question.question,
+                correctAnswer: question.options[question.correct],
+                userAnswer: "Time ran out",
+                explanation: question.explanation
+            });
+            
+            showExplanation();
+        }
+
+        // Handle option selection
+        function selectOption(index, element) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            clearInterval(timer);
+            
+            // Remove previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+                opt.classList.add('disabled');
+            });
+            
+            // Mark selected option
+            element.classList.add('selected');
+            selectedOption = index;
+            
+            const question = quizData[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            // Show correct answer
+            options[question.correct].classList.add('correct');
+            
+            // Check if answer is correct
+            if (selectedOption === question.correct) {
+                score++;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+                // Record wrong answer
+                wrongAnswers.push({
+                    questionNumber: currentQuestion + 1,
+                    question: question.question,
+                    correctAnswer: question.options[question.correct],
+                    userAnswer: question.options[selectedOption],
+                    explanation: question.explanation
+                });
+            }
+            
+            showExplanation();
+        }
+
+        // Show explanation
+        function showExplanation() {
+            const question = quizData[currentQuestion];
+            document.getElementById('explanation-text').textContent = question.explanation;
+            document.getElementById('explanation-section').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'inline-block';
+            
+            // Update score display
+            document.getElementById('current-score').textContent = score;
+        }
+
+        // Move to next question or show results
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Show final results
+        function showResults() {
+            clearInterval(timer);
+            
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'block';
+            document.getElementById('results-screen').classList.add('fade-in');
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            
+            document.getElementById('final-score').textContent = score + '/' + quizData.length;
+            document.getElementById('correct-answers').textContent = score;
+            document.getElementById('wrong-answers').textContent = quizData.length - score;
+            document.getElementById('timed-out').textContent = timedOutQuestions;
+            document.getElementById('accuracy').textContent = percentage + '%';
+            
+            // Set message based on score
+            let message = '';
+            if (percentage >= 90) {
+                message = '🎉 Excellent! You\'re a quiz master!';
+            } else if (percentage >= 70) {
+                message = '👏 Great job! Well done!';
+            } else if (percentage >= 50) {
+                message = '👌 Not bad! Keep learning!';
+            } else {
+                message = '📚 Keep studying and try again!';
+            }
+            
+            document.getElementById('score-message').textContent = message;
+            
+            // Show wrong answers if any
+            if (wrongAnswers.length > 0) {
+                showWrongAnswersDetails();
+            }
+        }
+
+        // Show detailed wrong answers
+        function showWrongAnswersDetails() {
+            const wrongAnswersSection = document.getElementById('wrong-answers-details');
+            const wrongAnswersList = document.getElementById('wrong-answers-list');
+            
+            wrongAnswersList.innerHTML = '';
+            
+            wrongAnswers.forEach(wrong => {
+                const wrongItem = document.createElement('div');
+                wrongItem.className = 'wrong-answer-item';
+                
+                wrongItem.innerHTML = `
+                    <div class="wrong-question-number">Question ${wrong.questionNumber}</div>
+                    <div class="wrong-question-text">${wrong.question}</div>
+                    <div class="wrong-answer-details">
+                        <strong>Your answer:</strong> ${wrong.userAnswer}<br>
+                        <strong>Correct answer:</strong> ${wrong.correctAnswer}<br>
+                        <strong>Explanation:</strong> ${wrong.explanation}
+                    </div>
+                `;
+                
+                wrongAnswersList.appendChild(wrongItem);
+            });
+            
+            wrongAnswersSection.style.display = 'block';
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            clearInterval(timer);
+            
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('start-screen').classList.add('fade-in');
+            
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = null;
+            wrongAnswers = [];
+            timedOutQuestions = 0;
+            
+            // Reset progress bar
+            document.getElementById('progress-fill').style.width = '0%';
+            
+            // Reset timer display
+            document.getElementById('timer').classList.remove('warning');
+        }
+    </script>
+</body>
+</html>

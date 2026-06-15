@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Study App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --accent: #667eea;
+            --accent-hover: #5a67d8;
+            --border: #e2e8f0;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --error: #f56565;
+            --info: #4299e1;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border: #4a5568;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Study Mode Selection */
+        .mode-selection {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .mode-selection h2 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mode-card {
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .mode-card.active {
+            border-color: var(--accent);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 120px;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--info));
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Flashcard */
+        .flashcard-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .flashcard {
+            width: 100%;
+            min-height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            min-height: 400px;
+            backface-visibility: hidden;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .card-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-topic {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: rgba(102, 126, 234, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .card-bookmark {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .card-bookmark:hover {
+            transform: scale(1.2);
+        }
+
+        .card-bookmark.marked {
+            color: var(--warning);
+        }
+
+        .card-content {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 20px 0;
+            max-width: 90%;
+        }
+
+        .card-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .card-label {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 10px;
+            min-width: 120px;
+        }
+
+        /* Difficulty Buttons */
+        .difficulty-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .diff-btn {
+            padding: 15px;
+            border: 2px solid;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .diff-easy {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .diff-easy:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .diff-normal {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .diff-normal:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        .diff-hard {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .diff-hard:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        .diff-forget {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .diff-forget:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Results */
+        .results {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .results h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result-card.easy {
+            background: rgba(72, 187, 120, 0.1);
+            border: 2px solid var(--success);
+        }
+
+        .result-card.normal {
+            background: rgba(66, 153, 225, 0.1);
+            border: 2px solid var(--info);
+        }
+
+        .result-card.hard {
+            background: rgba(237, 137, 54, 0.1);
+            border: 2px solid var(--warning);
+        }
+
+        .result-card.forget {
+            background: rgba(245, 101, 101, 0.1);
+            border: 2px solid var(--error);
+        }
+
+        .result-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .suggestions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .suggestions h3 {
+            margin-bottom: 15px;
+        }
+
+        .topic-list {
+            list-style: none;
+        }
+
+        .topic-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topic-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Search & Filter */
+        .controls {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .chip.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Keyboard Shortcuts Help */
+        .shortcuts {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            max-width: 250px;
+            display: none;
+        }
+
+        .shortcuts.show {
+            display: block;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.85rem;
+        }
+
+        .key {
+            background: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            resize: vertical;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Audio Control */
+        .audio-control {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-content {
+                font-size: 1.1rem;
+            }
+
+            .stat-card {
+                min-width: 100%;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">📚 FlashStudy</div>
+            <div class="header-controls">
+                <button class="btn" id="darkModeToggle">🌙 Dark Mode</button>
+                <button class="btn" id="audioToggle">🔊 Audio</button>
+                <button class="btn" id="helpBtn">❓ Help</button>
+                <button class="btn" id="importBtn">📥 Import</button>
+                <button class="btn" id="exportBtn">📤 Export</button>
+            </div>
+        </header>
+
+        <!-- Mode Selection -->
+        <div class="mode-selection" id="modeSelection">
+            <h2>Choose Your Study Mode</h2>
+            <div class="mode-grid">
+                <div class="mode-card active" data-mode="all">
+                    <div class="mode-icon">📖</div>
+                    <h3>Review All</h3>
+                    <p>Study all flashcards</p>
+                </div>
+                <div class="mode-card" data-mode="new">
+                    <div class="mode-icon">✨</div>
+                    <h3>Learn New</h3>
+                    <p>Only unseen cards</p>
+                </div>
+                <div class="mode-card" data-mode="difficult">
+                    <div class="mode-icon">🔥</div>
+                    <h3>Review Difficult</h3>
+                    <p>Hard & Forgotten cards</p>
+                </div>
+                <div class="mode-card" data-mode="marked">
+                    <div class="mode-icon">⭐</div>
+                    <h3>Marked Cards</h3>
+                    <p>Your bookmarked cards</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="startStudy">Start Studying</button>
+                <button class="btn" id="randomizeBtn">🔀 Randomize Cards</button>
+                <label class="chip">
+                    <input type="checkbox" id="topicFilter" style="margin-right: 5px;">
+                    Filter by Topic
+                </label>
+                <select id="topicSelect" class="btn" style="display: none;">
+                    <option value="">All Topics</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar hidden" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-value" id="streakCount">0</div>
+                <div class="stat-label">Day Streak 🔥</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="cardCounter">1/0</div>
+                <div class="stat-label">Card Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="timeSpent">0:00</div>
+                <div class="stat-label">Time Spent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="reviewedCount">0</div>
+                <div class="stat-label">Reviewed</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container hidden" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="controls hidden" id="controlsSection">
+            <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search flashcards...">
+        </div>
+
+        <!-- Flashcard -->
+        <div class="flashcard-container hidden" id="flashcardContainer">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front">
+                    <div class="card-header">
+                        <span class="card-topic" id="cardTopic"></span>
+                        <span class="card-bookmark" id="bookmark">☆</span>
+                    </div>
+                    <div class="card-content" id="cardQuestion"></div>
+                    <img class="card-image hidden" id="cardImageFront" src="" alt="">
+                    <div class="audio-control hidden" id="audioControlFront">
+                        <button class="btn" id="playQuestionAudio">▶️ Play</button>
+                    </div>
+                    <div class="card-label">QUESTION (Click to flip)</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-header">
+                        <span class="card-topic" id="cardTopicBack"></span>
+                        <span class="card-bookmark" id="bookmarkBack">☆</span>
+                    </div>
+                    <div class="card-content" id="cardAnswer"></div>
+                    <img class="card-image hidden" id="cardImageBack" src="" alt="">
+                    <div class="audio-control hidden" id="audioControlBack">
+                        <button class="btn" id="playAnswerAudio">▶️ Play</button>
+                    </div>
+                    <div class="card-label">ANSWER (Click to flip)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation hidden" id="navigation">
+            <button class="btn nav-btn" id="prevBtn">← Previous</button>
+            <button class="btn nav-btn btn-primary" id="flipBtn">🔄 Flip Card</button>
+            <button class="btn nav-btn" id="nextBtn">Next →</button>
+        </div>
+
+        <!-- Difficulty Buttons -->
+        <div class="difficulty-buttons hidden" id="difficultyButtons">
+            <button class="btn diff-btn diff-easy" data-difficulty="easy">
+                ✅ Easy
+            </button>
+            <button class="btn diff-btn diff-normal" data-difficulty="normal">
+                👍 Normal
+            </button>
+            <button class="btn diff-btn diff-hard" data-difficulty="hard">
+                💪 Hard
+            </button>
+            <button class="btn diff-btn diff-forget" data-difficulty="forget">
+                ❌ Forget
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="results hidden" id="results">
+            <h2>🎉 Session Complete!</h2>
+            <div class="results-grid">
+                <div class="result-card easy">
+                    <div class="result-number" id="resultEasy">0</div>
+                    <div class="stat-label">Easy</div>
+                </div>
+                <div class="result-card normal">
+                    <div class="result-number" id="resultNormal">0</div>
+                    <div class="stat-label">Normal</div>
+                </div>
+                <div class="result-card hard">
+                    <div class="result-number" id="resultHard">0</div>
+                    <div class="stat-label">Hard</div>
+                </div>
+                <div class="result-card forget">
+                    <div class="result-number" id="resultForget">0</div>
+                    <div class="stat-label">Forgotten</div>
+                </div>
+            </div>
+
+            <div class="suggestions" id="suggestions">
+                <h3>📌 Topics to Review:</h3>
+                <ul class="topic-list" id="topicSuggestions"></ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-primary" id="restartBtn">🔄 Start New Session</button>
+                <button class="btn" id="reviewDifficultBtn">📖 Review Difficult Cards</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help -->
+    <div class="shortcuts" id="shortcuts">
+        <h4 style="margin-bottom: 10px;">⌨️ Keyboard Shortcuts</h4>
+        <div class="shortcut-item">
+            <span>Flip Card</span>
+            <span class="key">Space</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Previous</span>
+            <span class="key">←</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Next</span>
+            <span class="key">→</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Easy</span>
+            <span class="key">1</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Normal</span>
+            <span class="key">2</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Hard</span>
+            <span class="key">3</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Forget</span>
+            <span class="key">4</span>
+        </div>
+        <div class="shortcut-item">
+            <span>Mark/Unmark</span>
+            <span class="key">M</span>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Import Flashcards</h3>
+                <button class="close-btn" id="closeImport">✕</button>
+            </div>
+            <p style="margin-bottom: 15px; color: var(--text-secondary);">
+                Paste your JSON data below or upload a file:
+            </p>
+            <textarea id="importData" placeholder='[{"question": "What is...?", "answer": "...", "topic": "..."}]'></textarea>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <input type="file" id="fileInput" accept=".json" style="flex: 1;">
+                <button class="btn btn-primary" id="confirmImport">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>How to Use FlashStudy</h3>
+                <button class="close-btn" id="closeHelp">✕</button>
+            </div>
+            <div style="color: var(--text-secondary); line-height: 1.8;">
+                <p><strong>Getting Started:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li>Choose a study mode (Review All, Learn New, etc.)</li>
+                    <li>Click "Start Studying" to begin</li>
+                    <li>Click on cards or press Space to flip them</li>
+                </ul>
+                
+                <p><strong>Rating Cards:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li>Easy: You remembered it quickly</li>
+                    <li>Normal: Took some thought but got it</li>
+                    <li>Hard: Struggled to remember</li>
+                    <li>Forget: Couldn't recall at all</li>
+                </ul>
+
+                <p><strong>Tips:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>Use keyboard shortcuts for faster studying</li>
+                    <li>Mark important cards with the bookmark (⭐)</li>
+                    <li>Enable audio to hear questions/answers read aloud</li>
+                    <li>Review difficult cards more frequently</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample flashcard data
+        let flashcards = [
+            {
+                id: 1,
+                topic: "JavaScript",
+                question: "What is a <b>closure</b> in JavaScript?",
+                answer: "A closure is a function that has access to variables in its <i>outer (enclosing) lexical scope</i>, even after the outer function has returned.",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 2,
+                topic: "JavaScript",
+                question: "Explain the difference between <b>let</b>, <b>const</b>, and <b>var</b>",
+                answer: "<b>var</b>: function-scoped, can be redeclared<br><b>let</b>: block-scoped, cannot be redeclared<br><b>const</b>: block-scoped, cannot be reassigned",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 3,
+                topic: "Python",
+                question: "What is a <b>list comprehension</b> in Python?",
+                answer: "A concise way to create lists. Syntax: <i>[expression for item in iterable if condition]</i><br>Example: [x*2 for x in range(5)]",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 4,
+                topic: "Python",
+                question: "What is the difference between <b>append()</b> and <b>extend()</b>?",
+                answer: "<b>append()</b>: adds its argument as a single element<br><b>extend()</b>: iterates over its argument adding each element",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 5,
+                topic: "Data Structures",
+                question: "What is the time complexity of <b>binary search</b>?",
+                answer: "<b>O(log n)</b> - because we divide the search space in half each iteration",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 6,
+                topic: "Data Structures",
+                question: "What is a <b>hash table</b>?",
+                answer: "A data structure that maps keys to values using a <i>hash function</i>. Average case O(1) for insertion, deletion, and lookup.",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 7,
+                topic: "Algorithms",
+                question: "What is <b>dynamic programming</b>?",
+                answer: "An optimization technique that solves complex problems by breaking them down into <i>overlapping subproblems</i> and storing their solutions to avoid redundant computations.",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 8,
+                topic: "Algorithms",
+                question: "Explain <b>Quick Sort</b> algorithm",
+                answer: "A divide-and-conquer algorithm that picks a <i>pivot</i> element and partitions the array around it. Average time: <b>O(n log n)</b>, Worst: <b>O(n²)</b>",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 9,
+                topic: "Web Development",
+                question: "What is the <b>DOM</b>?",
+                answer: "Document Object Model - a programming interface that represents the page as a <i>tree structure</i> of objects that can be manipulated with JavaScript.",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            },
+            {
+                id: 10,
+                topic: "Web Development",
+                question: "What is <b>CORS</b>?",
+                answer: "Cross-Origin Resource Sharing - a security feature that allows or restricts resources requested from another <i>domain</i> outside the domain from which the first resource was served.",
+                image: null,
+                marked: false,
+                seen: false,
+                difficulty: null
+            }
+        ];
+
+        // State
+        let currentIndex = 0;
+        let studyMode = 'all';
+        let activeCards = [];
+        let results = {
+            easy: 0,
+            normal: 0,
+            hard: 0,
+            forget: 0
+        };
+        let startTime = null;
+        let timerInterval = null;
+        let audioEnabled = false;
+        let isDarkMode = false;
+
+        // Elements
+        const modeSelection = document.getElementById('modeSelection');
+        const flashcardContainer = document.getElementById('flashcardContainer');
+        const flashcard = document.getElementById('flashcard');
+        const statsBar = document.getElementById('statsBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const navigation = document.getElementById('navigation');
+        const difficultyButtons = document.getElementById('difficultyButtons');
+        const resultsSection = document.getElementById('results');
+        const controlsSection = document.getElementById('controlsSection');
+
+        // Initialize
+        loadFromLocalStorage();
+        updateStreak();
+        populateTopicFilter();
+
+        // Mode Selection
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                studyMode = this.dataset.mode;
+            });
+        });
+
+        // Start Study
+        document.getElementById('startStudy').addEventListener('click', startStudySession);
+
+        // Randomize
+        document.getElementById('randomizeBtn').addEventListener('click', () => {
+            flashcards = shuffleArray(flashcards);
+            alert('✅ Flashcards randomized!');
+        });
+
+        // Topic Filter
+        document.getElementById('topicFilter').addEventListener('change', function() {
+            document.getElementById('topicSelect').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Dark Mode
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+        // Audio Toggle
+        document.getElementById('audioToggle').addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audioToggle').textContent = audioEnabled ? '🔊 Audio On' : '🔇 Audio Off';
+            document.querySelectorAll('.audio-control').forEach(el => {
+                el.classList.toggle('hidden', !audioEnabled);
+            });
+        });
+
+        // Navigation
+        document.getElementById('prevBtn').addEventListener('click', () => navigateCard(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => navigateCard(1));
+        document.getElementById('flipBtn').addEventListener('click', flipCard);
+
+        // Flip card on click
+        flashcard.addEventListener('click', flipCard);
+
+        // Bookmark
+        document.getElementById('bookmark').addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleBookmark();
+        });
+        document.getElementById('bookmarkBack').addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleBookmark();
+        });
+
+        // Difficulty buttons
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const difficulty = this.dataset.difficulty;
+                rateCard(difficulty);
+            });
+        });
+
+        // Audio playback
+        document.getElementById('playQuestionAudio').addEventListener('click', (e) => {
+            e.stopPropagation();
+            speak(activeCards[currentIndex].question);
+        });
+        document.getElementById('playAnswerAudio').addEventListener('click', (e) => {
+            e.stopPropagation();
+            speak(activeCards[currentIndex].answer);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', handleKeyboardShortcut);
+
+        // Help button
+        document.getElementById('helpBtn').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.add('show');
+        });
+        document.getElementById('closeHelp').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.remove('show');
+        });
+
+        // Import/Export
+        document.getElementById('importBtn').addEventListener('click', () => {
+            document.getElementById('importModal').classList.add('show');
+        });
+        document.getElementById('closeImport').addEventListener('click', () => {
+            document.getElementById('importModal').classList.remove('show');
+        });
+        document.getElementById('fileInput').addEventListener('change', handleFileImport);
+        document.getElementById('confirmImport').addEventListener('click', importData);
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+
+        // Restart
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            location.reload();
+        });
+
+        document.getElementById('reviewDifficultBtn').addEventListener('click', () => {
+            studyMode = 'difficult';
+            startStudySession();
+        });
+
+        // Functions
+        function startStudySession() {
+            // Filter cards based on mode
+            const selectedTopic = document.getElementById('topicFilter').checked ? 
+                document.getElementById('topicSelect').value : '';
+
+            switch(studyMode) {
+                case 'new':
+                    activeCards = flashcards.filter(card => !card.seen);
+                    break;
+                case 'difficult':
+                    activeCards = flashcards.filter(card => 
+                        card.difficulty === 'hard' || card.difficulty === 'forget'
+                    );
+                    break;
+                case 'marked':
+                    activeCards = flashcards.filter(card => card.marked);
+                    break;
+                default:
+                    activeCards = [...flashcards];
+            }
+
+            if (selectedTopic) {
+                activeCards = activeCards.filter(card => card.topic === selectedTopic);
+            }
+
+            if (activeCards.length === 0) {
+                alert('No cards available for this mode!');
+                return;
+            }
+
+            // Reset
+            currentIndex = 0;
+            results = { easy: 0, normal: 0, hard: 0, forget: 0 };
+            startTime = Date.now();
+
+            // UI
+            modeSelection.classList.add('hidden');
+            statsBar.classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            controlsSection.classList.remove('hidden');
+            flashcardContainer.classList.remove('hidden');
+            navigation.classList.remove('hidden');
+            difficultyButtons.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            // Start timer
+            timerInterval = setInterval(updateTimer, 1000);
+
+            // Load first card
+            loadCard(currentIndex);
+        }
+
+        function loadCard(index) {
+            const card = activeCards[index];
+            
+            // Mark as seen
+            card.seen = true;
+
+            // Update UI
+            document.getElementById('cardTopic').textContent = card.topic;
+            document.getElementById('cardTopicBack').textContent = card.topic;
+            document.getElementById('cardQuestion').innerHTML = card.question;
+            document.getElementById('cardAnswer').innerHTML = card.answer;
+            document.getElementById('cardCounter').textContent = `${index + 1}/${activeCards.length}`;
+
+            // Images
+            if (card.image) {
+                document.getElementById('cardImageFront').src = card.image;
+                document.getElementById('cardImageFront').classList.remove('hidden');
+                document.getElementById('cardImageBack').src = card.image;
+                document.getElementById('cardImageBack').classList.remove('hidden');
+            } else {
+                document.getElementById('cardImageFront').classList.add('hidden');
+                document.getElementById('cardImageBack').classList.add('hidden');
+            }
+
+            // Bookmark
+            updateBookmarkUI();
+
+            // Reset flip
+            flashcard.classList.remove('flipped');
+
+            // Update progress
+            updateProgress();
+
+            // Enable/disable navigation
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === activeCards.length - 1;
+
+            // Update reviewed count
+            const reviewed = activeCards.filter(c => c.difficulty !== null).length;
+            document.getElementById('reviewedCount').textContent = reviewed;
+        }
+
+        function flipCard() {
+            flashcard.classList.toggle('flipped');
+        }
+
+        function navigateCard(direction) {
+            const newIndex = currentIndex + direction;
+            if (newIndex >= 0 && newIndex < activeCards.length) {
+                currentIndex = newIndex;
+                loadCard(currentIndex);
+            }
+        }
+
+        function rateCard(difficulty) {
+            const card = activeCards[currentIndex];
+            
+            // Update card difficulty
+            card.difficulty = difficulty;
+            
+            // Update original card in flashcards array
+            const originalCard = flashcards.find(c => c.id === card.id);
+            if (originalCard) {
+                originalCard.difficulty = difficulty;
+                originalCard.seen = true;
+            }
+
+            // Update results
+            results[difficulty]++;
+
+            // Save to localStorage
+            saveToLocalStorage();
+
+            // Move to next card or show results
+            if (currentIndex < activeCards.length - 1) {
+                navigateCard(1);
+            } else {
+                showResults();
+            }
+        }
+
+        function toggleBookmark() {
+            const card = activeCards[currentIndex];
+            card.marked = !card.marked;
+            
+            // Update original card
+            const originalCard = flashcards.find(c => c.id === card.id);
+            if (originalCard) {
+                originalCard.marked = card.marked;
+            }
+
+            updateBookmarkUI();
+            saveToLocalStorage();
+        }
+
+        function updateBookmarkUI() {
+            const isMarked = activeCards[currentIndex].marked;
+            document.getElementById('bookmark').textContent = isMarked ? '⭐' : '☆';
+            document.getElementById('bookmarkBack').textContent = isMarked ? '⭐' : '☆';
+            document.getElementById('bookmark').classList.toggle('marked', isMarked);
+            document.getElementById('bookmarkBack').classList.toggle('marked', isMarked);
+        }
+
+        function updateProgress() {
+            const reviewed = activeCards.filter(c => c.difficulty !== null).length;
+            const percentage = Math.round((reviewed / activeCards.length) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${percentage}% Complete (${reviewed}/${activeCards.length})`;
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timeSpent').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+
+            // Hide study UI
+            flashcardContainer.classList.add('hidden');
+            navigation.classList.add('hidden');
+            difficultyButtons.classList.add('hidden');
+            controlsSection.classList.add('hidden');
+
+            // Show results
+            resultsSection.classList.remove('hidden');
+
+            // Update result numbers
+            document.getElementById('resultEasy').textContent = results.easy;
+            document.getElementById('resultNormal').textContent = results.normal;
+            document.getElementById('resultHard').textContent = results.hard;
+            document.getElementById('resultForget').textContent = results.forget;
+
+            // Generate topic suggestions
+            const topicStats = {};
+            activeCards.forEach(card => {
+                if (card.difficulty === 'forget' || card.difficulty === 'hard') {
+                    topicStats[card.topic] = (topicStats[card.topic] || 0) + 1;
+                }
+            });
+
+            const suggestionsEl = document.getElementById('topicSuggestions');
+            suggestionsEl.innerHTML = '';
+
+            if (Object.keys(topicStats).length > 0) {
+                const sorted = Object.entries(topicStats).sort((a, b) => b[1] - a[1]);
+                sorted.forEach(([topic, count]) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${topic} - ${count} card(s) need review`;
+                    suggestionsEl.appendChild(li);
+                });
+            } else {
+                suggestionsEl.innerHTML = '<li>🎉 Great job! No topics need extra review.</li>';
+            }
+
+            // Update streak
+            updateStreak();
+        }
+
+        function handleKeyboardShortcut(e) {
+            if (flashcardContainer.classList.contains('hidden')) return;
+
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    flipCard();
+                    break;
+                case 'ArrowLeft':
+                    navigateCard(-1);
+                    break;
+                case 'ArrowRight':
+                    navigateCard(1);
+                    break;
+                case '1':
+                    rateCard('easy');
+                    break;
+                case '2':
+                    rateCard('normal');
+                    break;
+                case '3':
+                    rateCard('hard');
+                    break;
+                case '4':
+                    rateCard('forget');
+                    break;
+                case 'm':
+                case 'M':
+                    toggleBookmark();
+                    break;
+                case '?':
+                    document.getElementById('shortcuts').classList.toggle('show');
+                    break;
+            }
+        }
+
+        function speak(text) {
+            if (!audioEnabled) return;
+            
+            // Remove HTML tags for speech
+            const cleanText = text.replace(/<[^>]*>/g, '');
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            document.getElementById('darkModeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        function updateStreak() {
+            const lastStudy = localStorage.getItem('lastStudyDate');
+            const today = new Date().toDateString();
+            let streak = parseInt(localStorage.getItem('studyStreak') || '0');
+
+            if (lastStudy === today) {
+                // Already studied today
+            } else if (lastStudy === new Date(Date.now() - 86400000).toDateString()) {
+                // Studied yesterday, increment streak
+                streak++;
+            } else {
+                // Streak broken
+                streak = 1;
+            }
+
+            localStorage.setItem('studyStreak', streak);
+            localStorage.setItem('lastStudyDate', today);
+            document.getElementById('streakCount').textContent = streak;
+        }
+
+        function populateTopicFilter() {
+            const topics = [...new Set(flashcards.map(card => card.topic))];
+            const select = document.getElementById('topicSelect');
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                select.appendChild(option);
+            });
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('flashcards');
+            if (saved) {
+                flashcards = JSON.parse(saved);
+            }
+
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                isDarkMode = true;
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').textContent = '☀️ Light Mode';
+            }
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(flashcards, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'flashcards_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function handleFileImport(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('importData').value = event.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function importData() {
+            try {
+                const data = document.getElementById('importData').value;
+                const imported = JSON.parse(data);
+                
+                if (Array.isArray(imported)) {
+                    // Add IDs if missing
+                    imported.forEach((card, index) => {
+                        if (!card.id) card.id = Date.now() + index;
+                        if (!card.hasOwnProperty('marked')) card.marked = false;
+                        if (!card.hasOwnProperty('seen')) card.seen = false;
+                        if (!card.hasOwnProperty('difficulty')) card.difficulty = null;
+                    });
+                    
+                    flashcards = imported;
+                    saveToLocalStorage();
+                    populateTopicFilter();
+                    document.getElementById('importModal').classList.remove('show');
+                    alert('✅ Flashcards imported successfully!');
+                } else {
+                    alert('❌ Invalid format. Expected an array of flashcards.');
+                }
+            } catch (error) {
+                alert('❌ Error parsing JSON: ' + error.message);
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchBar').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            if (query) {
+                const filtered = flashcards.filter(card => 
+                    card.question.toLowerCase().includes(query) ||
+                    card.answer.toLowerCase().includes(query) ||
+                    card.topic.toLowerCase().includes(query)
+                );
+                console.log(`Found ${filtered.length} cards matching "${query}"`);
+                // You can implement visual feedback here
+            }
+        });
+    </script>
+</body>
+</html>

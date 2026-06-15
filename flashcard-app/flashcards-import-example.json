@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "topic": "JavaScript",
+    "question": "What is a <b>closure</b> in JavaScript?",
+    "answer": "A closure is a function that has access to variables in its <i>outer (enclosing) lexical scope</i>, even after the outer function has returned.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 2,
+    "topic": "JavaScript",
+    "question": "Explain the difference between <b>let</b>, <b>const</b>, and <b>var</b>",
+    "answer": "<b>var</b>: function-scoped, can be redeclared<br><b>let</b>: block-scoped, cannot be redeclared<br><b>const</b>: block-scoped, cannot be reassigned",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 3,
+    "topic": "Python",
+    "question": "What is a <b>list comprehension</b> in Python?",
+    "answer": "A concise way to create lists. Syntax: <i>[expression for item in iterable if condition]</i><br>Example: [x*2 for x in range(5)]",
+    "image": "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400",
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 4,
+    "topic": "Data Structures",
+    "question": "What is the time complexity of <b>binary search</b>?",
+    "answer": "<b>O(log n)</b> - because we divide the search space in half each iteration",
+    "image": null,
+    "marked": true,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 5,
+    "topic": "Algorithms",
+    "question": "What is <b>dynamic programming</b>?",
+    "answer": "An optimization technique that solves complex problems by breaking them down into <i>overlapping subproblems</i> and storing their solutions to avoid redundant computations.",
+    "image": null,
+    "marked": false,
+    "seen": true,
+    "difficulty": "hard"
+  },
+  {
+    "id": 6,
+    "topic": "Mathematics",
+    "question": "What is the <b>Pythagorean theorem</b>?",
+    "answer": "In a right-angled triangle: <b>a² + b² = c²</b><br>where <i>c</i> is the hypotenuse and <i>a</i> and <i>b</i> are the other two sides.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 7,
+    "topic": "History",
+    "question": "When did <b>World War II</b> end?",
+    "answer": "World War II ended on <b>September 2, 1945</b> when Japan formally surrendered aboard the USS Missouri.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 8,
+    "topic": "Biology",
+    "question": "What is <b>photosynthesis</b>?",
+    "answer": "The process by which plants convert <i>light energy</i> into <i>chemical energy</i> (glucose).<br><br>Formula: <b>6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂</b>",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 9,
+    "topic": "Chemistry",
+    "question": "What is the <b>periodic table</b>?",
+    "answer": "A tabular arrangement of chemical elements organized by <i>atomic number</i>, <i>electron configuration</i>, and <i>recurring chemical properties</i>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 10,
+    "topic": "Physics",
+    "question": "What is <b>Newton's First Law of Motion</b>?",
+    "answer": "An object at rest stays at rest, and an object in motion stays in motion with the same <i>speed</i> and <i>direction</i> unless acted upon by an <b>unbalanced force</b>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 11,
+    "topic": "Geography",
+    "question": "What is the capital of <b>France</b>?",
+    "answer": "<b>Paris</b> - also known as the <i>City of Light</i>, located on the Seine River.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 12,
+    "topic": "Literature",
+    "question": "Who wrote <b>Romeo and Juliet</b>?",
+    "answer": "<b>William Shakespeare</b> wrote this tragic play around <i>1594-1596</i>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 13,
+    "topic": "Web Development",
+    "question": "What does <b>HTML</b> stand for?",
+    "answer": "<b>HyperText Markup Language</b> - the standard markup language for creating <i>web pages</i>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 14,
+    "topic": "Web Development",
+    "question": "What is <b>CSS</b> used for?",
+    "answer": "<b>Cascading Style Sheets</b> - used for describing the <i>presentation</i> and <i>styling</i> of web documents.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 15,
+    "topic": "Database",
+    "question": "What is <b>SQL</b>?",
+    "answer": "<b>Structured Query Language</b> - a standard language for managing and manipulating <i>relational databases</i>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 16,
+    "topic": "Database",
+    "question": "What is the difference between <b>SQL</b> and <b>NoSQL</b>?",
+    "answer": "<b>SQL</b>: Relational, structured, uses tables<br><b>NoSQL</b>: Non-relational, flexible schema, uses documents/key-value/graphs",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 17,
+    "topic": "Networking",
+    "question": "What does <b>HTTP</b> stand for?",
+    "answer": "<b>HyperText Transfer Protocol</b> - the foundation of data communication on the <i>World Wide Web</i>.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 18,
+    "topic": "Networking",
+    "question": "What is the difference between <b>HTTP</b> and <b>HTTPS</b>?",
+    "answer": "<b>HTTP</b>: Unencrypted data transfer<br><b>HTTPS</b>: Encrypted using <i>SSL/TLS</i> for secure communication",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 19,
+    "topic": "Operating Systems",
+    "question": "What is an <b>operating system</b>?",
+    "answer": "System software that manages <i>hardware</i> and <i>software resources</i> and provides services for computer programs.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  },
+  {
+    "id": 20,
+    "topic": "Security",
+    "question": "What is <b>encryption</b>?",
+    "answer": "The process of converting <i>plaintext</i> into <i>ciphertext</i> to prevent unauthorized access to information.",
+    "image": null,
+    "marked": false,
+    "seen": false,
+    "difficulty": null
+  }
+]
